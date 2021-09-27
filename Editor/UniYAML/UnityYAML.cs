@@ -27,9 +27,7 @@ namespace AssetLens.YAML
 			var types = Assembly
 				.GetAssembly(typeof(YAMLObject))
 				.GetTypes()
-				.Where(e => e
-					.GetInterfaces()
-					.Contains(typeof(YAMLObject))
+				.Where(e => e.IsSubclassOf(typeof(YAMLObject))
 				)
 				.OrderBy(e => e.Name);
 
@@ -80,10 +78,6 @@ namespace AssetLens.YAML
 						}
 
 						YAMLObject deserialized = (YAMLObject)serializer.Deserialize(sb.ToString(), type);
-						if (ClassId == EClassIdReference.GameObject)
-						{
-							deserialized = (YGameObject)serializer.Deserialize<YGameObject>(sb.ToString());
-						}
 						
 						deserialized.content = sb.ToString();
 						deserialized.stripped = stripped;
@@ -138,7 +132,7 @@ namespace AssetLens.YAML
 
 			foreach (YAMLObject objectsValue in objects.Values)
 			{
-				if (objectsValue is YGameObject g)
+				if (objectsValue is GameObject_YAML g)
 				{
 					Debug.Log(JsonUtility.ToJson(g));
 				}

@@ -1,14 +1,18 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
+using System.Linq;
+using System.Reflection;
 using System.Text;
 using UnityEditor;
 using UnityEngine;
 
 namespace AssetLens.YAML
 {
+	using CodeGen;
+	
 	public static class UniYAMLUtil
 	{
 		private const string namespaceName = "AssetLens.YAML";
-
 		
 #if DEBUG_ASSETLENS
 		[MenuItem("Tools/YAML/Create Class ID Enum")]
@@ -17,46 +21,15 @@ namespace AssetLens.YAML
 			const string className = "EClassIdReference";
 			
 			string path = Application.dataPath + "/classid.txt";
-			
 			string[] textContent = File.ReadAllLines(path);
-
-			// StringBuilder sb = new StringBuilder();
-			//
-			// sb.AppendLine($"namespace {namespaceName}");
-			// sb.AppendLine("{");
-			// sb.AppendLine("\t/// https://docs.unity3d.com/Manual/ClassIDReference.html");
-			// sb.AppendLine($"\tpublic enum {className} : ulong");
-			// sb.AppendLine("\t{");
-			//
-			// foreach (string content in textContent)
-			// {
-			// 	var block = content.Split('|');
-			// 	
-			// 	var indexString = block[0];
-			// 	var name = block[1];
-			//
-			// 	sb.Append("\t\t@");
-			// 	sb.Append(name);
-			//
-			// 	int count = name.Length;
-			// 	for (int i = count; i < 40; i++)
-			// 	{
-			// 		sb.Append(" ");
-			// 	}
-			// 	sb.Append(" = ");
-			//
-			// 	sb.Append(indexString);
-			// 	sb.Append(",\n");
-			// }
-			//
-			// sb.AppendLine("\t}");
-			// sb.AppendLine("}");
 			
 			CodeFactory code = new CodeFactory();
 
 			using (code.NewNamespace(namespaceName))
 			{
-				using (var e = code.NewEnum(className, CodeFactory.EEnumAccessModifier.Public, CodeFactory.EEnumBaseType.Ulong))
+				code.AppendLine("/// https://docs.unity3d.com/Manual/ClassIDReference.html");
+				
+				using (var e = code.NewEnum(className, EEnumAccessModifier.Public, EEnumBaseType.Ulong))
 				{
 					foreach (string content in textContent)
 					{
@@ -65,14 +38,14 @@ namespace AssetLens.YAML
 						var indexString = block[0];
 						var name = block[1];
 
-						var space = 40 - name.Length;
+						var space = 52 - name.Length;
 						
-						e.Add(name, indexString, space);
+						e.Add($"@{name}",indexString, space);
 					}
 				}	
 			}
 
-			string filePath = Application.dataPath + $"/{className}.cs";
+			string filePath = Path.GetFullPath("Packages/com.calci.uniyaml") + $"/Editor/UniYAML/{className}.cs";
 			
 			File.WriteAllText(filePath, code.ToString());
 			
@@ -98,20 +71,51 @@ namespace AssetLens.YAML
 			const string className = "YAMLTypeResolver";
 
 			CodeFactory code = new CodeFactory();
+			
+			code.AddUsing("YamlDotNet.Serialization");
 
 			using (code.NewNamespace(namespaceName))
 			{
-				using (var klass = code.NewClass(className, CodeFactory.EClassAccessModifier.Public, CodeFactory.EClassInheritModifier.Sealed))
+				using (ClassBuilder c = code.NewClass(className, EClassAccessModifier.Public, EClassInheritModifier.Static))
 				{
-				
+					var types = Assembly
+						.GetAssembly(typeof(YAMLObject))
+						.GetTypes()
+						.Where(e => e.IsSubclassOf(typeof(YAMLObject))
+						)
+						.OrderBy(e => e.Name);
+					
+					code.AppendLine($"public static YAMLObject Deserialize(IDeserializer serializer, EClassIdReference classId, string yamlContent)");
+					code.OpenBrace();
+					{
+						foreach (Type type in types)
+						{
+							ClassIDAttribute attribute = type.GetCustomAttribute<ClassIDAttribute>();
+							EClassIdReference classId = attribute?.id ?? EClassIdReference.Object;
+							
+							string returnTypeName = type.FullName;
+						
+							code.AppendLine($"if (classId == EClassIdReference.@{classId})");
+							code.OpenBrace();
+							{
+								code.AppendLine($"return serializer.Deserialize<{returnTypeName}>(yamlContent);");
+							}
+							code.CloseBrace();
+						}	
+						
+						code.AppendLine("return default;");
+					}
+					code.CloseBrace();
 				}	
 			}
 			
-			Debug.Log(code.ToString());
+			string filePath = Path.GetFullPath("Packages/com.calci.uniyaml") + $"/Editor/UniYAML/{className}.cs";
+			
+			File.WriteAllText(filePath, code.ToString());
+			
+			AssetDatabase.ImportAsset(filePath);
+			AssetDatabase.SaveAssets();
 		}
 #endif
 	}
 }
-
-namespace AssetLens
-{ }
