@@ -1,0 +1,27 @@
+{
+  "name": "com.calci.uniyaml",
+  "displayName": "UniYAML",
+  "version": "0.1.0",
+  "description": "Parser YAML for UnityEditor",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/seonghwan-dev/unityaml.git"
+  },
+  "keywords": [
+    "unity",
+    "yaml",
+    "serialization"
+  ],
+  "dependencies": {
+    "aaubry.yaml-dotnet": "11.2.1-a"
+  },
+  "author": {
+    "name": "Seonghwan",
+    "email": "seonghwan@pm.me",
+    "url": "https://github.com/seonghwan-dev"
+  },
+  "bugs": {
+    "url": "https://github.com/seonghwan-dev/unityaml/issues"
+  },
+  "homepage": "https://github.com/seonghwan-dev/unityaml#readme"
+}
