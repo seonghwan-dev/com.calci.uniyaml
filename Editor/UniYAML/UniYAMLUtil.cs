@@ -133,7 +133,7 @@ namespace AssetLens.YAML
 				using (code.NewNamespace(namespaceName))
 				{
 					code.AppendLine("[Serializable]");
-					code.AppendLine($"[ClassID(EClassIdReference.{classId})]");
+					code.AppendLine($"[ClassID(EClassIdReference.@{classId})]");
 					
 					using (ClassBuilder c = code.NewChildClass(className, "YAMLObject"))
 					{
