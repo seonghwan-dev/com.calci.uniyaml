@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace AssetLens.YAML
 {
@@ -7,11 +6,11 @@ namespace AssetLens.YAML
 	[ClassID(EClassIdReference.GameObject)]
 	public class GameObject_YAML : YAMLObject
 	{
-		public int m_ObjectHideFlags;
+		public int serializedVersion;
+		
 		public InstanceRegistry m_CorrespondingSourceObject;
 		public InstanceRegistry m_PrefabInstance;
 		public InstanceRegistry m_PrefabAsset;
-		public int serializedVersion;
 		public ComponentRegistry[] m_Component;
 		public int m_Layer;
 		public string m_Name;

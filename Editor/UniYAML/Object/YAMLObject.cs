@@ -7,5 +7,7 @@ namespace AssetLens.YAML
 	{
 		public string content;
 		public bool stripped;
+		
+		public int m_ObjectHideFlags;
 	}
 }
