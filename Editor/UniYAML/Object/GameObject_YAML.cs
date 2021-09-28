@@ -12,7 +12,7 @@ namespace AssetLens.YAML
 		public InstanceRegistry m_PrefabInstance;
 		public InstanceRegistry m_PrefabAsset;
 		public int serializedVersion;
-		public List<InstanceRegistry> m_Component;
+		public ComponentRegistry[] m_Component;
 		public int m_Layer;
 		public string m_Name;
 		public string m_TagString;

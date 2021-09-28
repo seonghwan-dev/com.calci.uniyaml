@@ -8,6 +8,12 @@ namespace AssetLens.YAML
 	{
 		public ulong fileID;
 	}
+
+	[Serializable]
+	public class ComponentRegistry
+	{
+		public InstanceRegistry component;
+	}
 	
 	
 	namespace Util

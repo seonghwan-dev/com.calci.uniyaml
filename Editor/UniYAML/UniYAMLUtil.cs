@@ -116,6 +116,36 @@ namespace AssetLens.YAML
 			AssetDatabase.ImportAsset(filePath);
 			AssetDatabase.SaveAssets();
 		}
+
+		[MenuItem("Tools/YAML/Generate Missing Classess")]
+		private static void GenerateMissingClass()
+		{
+			foreach (EClassIdReference classId in Enum.GetValues(typeof(EClassIdReference)))
+			{
+				string className = $"{classId}_YAML";
+				string filePath = Path.GetFullPath("Packages/com.calci.uniyaml") + $"/Editor/UniYAML/Object/{className}.cs";
+
+				if (File.Exists(filePath)) continue;
+				
+				CodeFactory code = new CodeFactory();
+				code.AddUsing("System");
+
+				using (code.NewNamespace(namespaceName))
+				{
+					code.AppendLine("[Serializable]");
+					code.AppendLine($"[ClassID(EClassIdReference.{classId})]");
+					
+					using (ClassBuilder c = code.NewChildClass(className, "YAMLObject"))
+					{
+						
+					}
+				}
+				
+				File.WriteAllText(filePath, code.ToString());
+			}
+			
+			AssetDatabase.Refresh();
+		}
 #endif
 	}
 }
